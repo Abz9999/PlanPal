@@ -4,16 +4,7 @@ A student calendar web application for planning and scheduling academic events.
 
 ## Authors
 
-- Frankie Cole (k24027040)
-- Theodore Tsiberopoulos (k22024957)
-- Ahmet Deha Kayaturk (k23098721)
-- Wazna Alshammari (k23096011)
-- Wasif Khan (k23149695)
-- Moyondafoluwa Bliss Akinwande (k23153214)
-- James Andoh (k24034857)
-- Aman Hayer (k23055323)
-- Abdallah Batah (k24059084)
-- Ashrith Behara (k23010155)
+10 person group project .Abdallah Batah (other names not included for privacy)
 
 ## Deployment
 
