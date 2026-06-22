@@ -1,0 +1,198 @@
+
+  .user-details-shell {
+    width: 800px;
+    margin: 0 auto 24px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .user-details-card {
+    width: 100%;
+    margin: 0;
+    display: block;
+  }
+
+  .user-details-title {
+    margin: 0 0 6px 0;
+    font-size: 20px;
+  }
+
+  .user-details-profile-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .user-details-profile-name {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+  }
+
+  .user-details-profile-note {
+    margin: 0;
+    font-size: 13px;
+    color: #555;
+  }
+
+  .profile-avatar-image-large {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #d7dfea;
+    background: #f8fafc;
+  }
+
+  .user-details-avatar-form {
+    margin-top: 14px;
+  }
+
+  .user-details-subtitle {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #555;
+  }
+
+  .user-details-section-title {
+    margin: 0 0 12px 0;
+    font-size: 17px;
+  }
+
+  .user-details-grid {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 10px 14px;
+    align-items: center;
+  }
+
+  .user-details-label {
+    margin: 0 0 0 6px;
+    font-size: 13px;
+    color: #333;
+  }
+
+  .user-details-value {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #cfd8e6;
+    background: #f7f9fc;
+    font-size: 14px;
+    color: #111;
+  }
+
+  .user-details-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .user-details-field {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 10px 14px;
+    align-items: start;
+  }
+
+  .user-details-field > label {
+    margin: 0 0 0 6px;
+    padding-top: 8px;
+    font-size: 13px;
+    color: #333;
+  }
+
+  .user-details-input input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #cfd8e6;
+    background: #fff;
+    font-size: 14px;
+  }
+
+  .user-details-input input:focus {
+    outline: none;
+    border-color: #bfcce0;
+    box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.06);
+  }
+
+  .user-details-form .errorlist {
+    margin: 6px 0 0 0;
+    padding-left: 18px;
+    color: #b42318;
+    font-size: 13px;
+  }
+
+  .user-details-form .errorlist.nonfield {
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  .user-details-help {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #666;
+  }
+
+  .user-details-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 2px;
+  }
+
+  .user-details-danger-card {
+    border-color: #ffd0d0;
+  }
+
+  .user-details-danger-note {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #555;
+  }
+
+  .user-details-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #ffd0d0;
+    background: #fff5f5;
+  }
+
+  .user-details-checkbox input[type="checkbox"] {
+    margin-top: 2px;
+  }
+
+  .user-details-checkbox label {
+    margin: 0;
+    font-size: 14px;
+    color: #111;
+  }
+
+  @media (max-width: 840px) {
+    .user-details-shell {
+      width: auto;
+      margin: 0 12px 24px 12px;
+    }
+
+    .user-details-grid,
+    .user-details-field {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .user-details-profile-row {
+      align-items: flex-start;
+    }
+
+    .user-details-label,
+    .user-details-field > label {
+      margin-left: 0;
+      padding-top: 0;
+    }
+  }

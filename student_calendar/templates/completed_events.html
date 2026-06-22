@@ -1,0 +1,146 @@
+<!-- Created by Khan -->
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Completed Events{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/event_card.css' %}">
+<link rel="stylesheet" href="{% static 'css/completed_events.css' %}">
+{% endblock %}
+
+{% block content %}
+<div style="width:800px; margin:0 auto;">
+  <h2>Completed Events</h2>
+
+  {% if event_data %}
+    <div class="grid-container">
+      {% for item in event_data %}
+        {% include "partials/event_card.html" with event=item.event modal_id=item.modal_id completed_count=item.completed_count total_count=item.total_count %}
+      {% endfor %}
+    </div>
+
+    <!-- Modals rendered outside the grid so they are not clipped -->
+    {% for item in event_data %}
+      <div id="{{ item.modal_id }}" class="modal-overlay" onclick="closeModal(this)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+          <button class="modal-close" onclick="closeModal(document.getElementById('{{ item.modal_id }}'))">&times;</button>
+
+          <!-- List view -->
+          <div id="list-{{ item.event.id }}" class="instance-list-view">
+            <h3>{{ item.event.title }}</h3>
+            {% if item.event.description %}
+              <p style="color:#555; margin-bottom:14px;">{{ item.event.description }}</p>
+            {% endif %}
+
+            <ul class="instance-list">
+              {% for instance in item.instances %}
+                <li class="instance-item {% if instance.status == 3 %}is-completed{% elif instance.status == 4 %}is-missed{% elif instance.status == 2 %}is-scheduled{% endif %}"
+                    onclick="showInstanceDetail('detail-{{ item.event.id }}-{{ instance.id }}', 'list-{{ item.event.id }}')">
+                  {% if instance.status == 3 %}
+                    <span class="status-dot dot-completed" title="Completed"></span>
+                  {% elif instance.status == 2 %}
+                    <span class="status-dot dot-scheduled" title="Scheduled"></span>
+                  {% elif instance.status == 4 %}
+                    <span class="status-dot dot-missed" title="Missed"></span>
+                  {% else %}
+                    <span class="status-dot dot-created" title="Created"></span>
+                  {% endif %}
+
+                  {% comment %} This will show the date the instance was scheduled {% endcomment %}
+                  <span>
+                    {% if instance.placed_start %}
+                      {{ instance.placed_start }} &ndash; {{ instance.placed_end }}
+                    {% else %}
+                      Unscheduled
+                    {% endif %}
+                  </span>
+
+                  <span style="margin-left:auto; font-size:12px; color:#666;">
+                    {{ instance.get_status_display }}
+                  </span>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <!-- Per-instance detail views -->
+          {% for instance in item.instances %}
+            <div id="detail-{{ item.event.id }}-{{ instance.id }}" class="instance-detail">
+              <button class="back-btn" onclick="showInstanceList('detail-{{ item.event.id }}-{{ instance.id }}', 'list-{{ item.event.id }}')">
+                &larr; Back
+              </button>
+              <h3>{{ item.event.title }}</h3>
+
+              <div class="detail-row">
+                <span class="detail-label">Status</span>
+                <span>
+                  {% if instance.status == 3 %}
+                    <span class="status-dot dot-completed" title="Completed" style="display:inline-block; vertical-align:middle; margin-right:6px;"></span>
+                  {% elif instance.status == 2 %}
+                    <span class="status-dot dot-scheduled" title="Scheduled" style="display:inline-block; vertical-align:middle; margin-right:6px;"></span>
+                  {% elif instance.status == 4 %}
+                    <span class="status-dot dot-missed" title="Missed" style="display:inline-block; vertical-align:middle; margin-right:6px;"></span>
+                  {% else %}
+                    <span class="status-dot dot-created" title="Created" style="display:inline-block; vertical-align:middle; margin-right:6px;"></span>
+                  {% endif %}
+                  {{ instance.get_status_display }}
+                </span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Scheduled time</span>
+                <span>
+                  {% if instance.placed_start %}
+                    {{ instance.placed_start }} &ndash; {{ instance.placed_end }}
+                  {% else %}
+                    Unscheduled
+                  {% endif %}
+                </span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Duration</span>
+                <span>{{ item.event.duration_format }}</span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Category</span>
+                <span>{{ item.event.category }}</span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Importance</span>
+                <span>{{ item.event.get_importance_display }}</span>
+              </div>
+
+              {% if item.event.location %}
+                <div class="detail-row">
+                  <span class="detail-label">Location</span>
+                  <span>{{ item.event.location }}</span>
+                </div>
+              {% endif %}
+
+              {% if item.event.description %}
+                <div class="detail-row">
+                  <span class="detail-label">Description</span>
+                  <span>{{ item.event.description }}</span>
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+        </div>
+      </div>
+    {% endfor %}
+
+  {% else %}
+    <p>No completed events yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/completed_events.js' %}"></script>
+{% endblock %}

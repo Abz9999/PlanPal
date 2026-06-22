@@ -1,0 +1,38 @@
+.page-navigator {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin: 12px;
+}
+
+.page-navigator li a {
+    display: block;
+    border: 1px solid #d7dfea;
+    padding: 8px 12px;
+    color: black;
+    text-decoration: none;
+}
+
+.page-navigator li:first-child a {
+    border-radius: 8px 0 0 8px;
+}
+
+.page-navigator li:last-child a {
+    border-radius: 0 8px 8px 0;
+}
+
+.page-navigator li:only-child a {
+    border-radius: 8px;
+}
+
+.page-navigator li a:hover:not(.current) {
+    background: #eaeaea;
+}
+
+.page-navigator li a.current {
+    background: black;
+    border: 1px solid black;
+    color: white;
+    pointer-events: none;
+}

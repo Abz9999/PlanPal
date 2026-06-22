@@ -1,0 +1,178 @@
+<!-- Created by Khan -->
+<!-- Edited by Theo -->
+
+{% extends "base.html" %}
+{% load static %}
+{% load url_utilities %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block extra_head %}
+    <!-- Khan - load Bootstrap + page-specific CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/event_card.css' %}">
+    <link rel="stylesheet" href="{% static 'css/event_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dropdown.css' %}">
+{% endblock %}
+
+{% block toolbar %}
+
+  <!-- Dashboard toolbar -->
+  <div class="planner-nav">
+      <!-- Left: Filter + Create Event -->
+      <div class="button-group">
+          {% include "partials/filter_dropdown.html" with categories=categories filters=filters %}
+
+          <button class="nav-btn" type="button" id="btn-create-event">Create Event</button>
+      </div>
+
+      <!-- Right: Sort + Search -->
+      <div class="button-group">
+          <div class="dropdown">
+              <button class="nav-btn dropdown-dont-close-on-click" onclick="showDropdownOptions('sort-dropdown')">Sort By</button>
+              <div id="sort-dropdown" class="dropdown-options dropdown-sort">
+                  <a href="?{% update_parameters sort='title' %}">Title (A-Z)</a>
+                  <a href="?{% update_parameters sort='-title' %}">Title (Z-A)</a>
+                  <a href="?{% update_parameters sort='importance' %}">Importance (High-Low)</a>
+                  <a href="?{% update_parameters sort='-importance' %}">Importance (Low-High)</a>
+                  <a href="?{% update_parameters sort='amount_placed' %}">Amount Placed (Most-Least)</a>
+                  <a href="?{% update_parameters sort='-amount_placed' %}">Amount Placed (Least-Most)</a>
+                  <a href="?{% update_parameters sort='next_scheduled' %}">Next Scheduled Occurrence</a>
+              </div>
+          </div>
+          <div class="search">
+              <form method="get">
+                  <input class="search-bar" name="query" type="text" placeholder="Search" value="{{ query }}">
+                  <button class="nav-btn nav-btn-right" type="submit">Search</button>
+              </form>
+          </div>
+      </div>
+
+  </div>
+
+    {# Modal pop up for the event form. Added by Frankie#}
+    <div id="eventModal" class="modal hidden">
+        <div class="modal-content">
+            <div id="modalBody">
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+{# NOTE: Removed nested <body> because base.html already defines <body> #}
+{# <body class="bg-light"> #}
+
+{% include "partials/page_navigator.html" with page_object=events %}
+
+{% if events|length > 0 %}
+    <div class="grid-container">
+        {% for event in events %}
+            {% include "partials/event_card.html" with event=event %}
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="no-event-message">
+        <p>You don't have any events...</p>
+    </div>
+{% endif %}
+
+{% include "partials/page_navigator.html" with page_object=events %}
+
+<!-- Event detail overlay -->
+<div id="eventDetailOverlay" class="ed-overlay hidden" aria-hidden="true">
+    <div class="ed-dialog" id="eventDetailDialog">
+
+        <div class="ed-header">
+            <div class="ed-header-text">
+                <h2 class="ed-title" id="edTitle"></h2>
+                <div class="ed-meta">
+                    <span class="ed-badge" id="edCategoryBadge"></span>
+                    <span class="ed-badge ed-importance-badge" id="edImportanceBadge"></span>
+                </div>
+            </div>
+            <button class="ed-close" id="edClose" aria-label="Close">&#x2715;</button>
+        </div>
+
+        <div class="ed-body" id="edBody">
+
+            <div class="ed-section">
+                <div class="ed-row" id="edTimeRow">
+                    <span class="ed-label">Time</span>
+                    <span class="ed-value" id="edTime"></span>
+                </div>
+                <div class="ed-row" id="edRepeatRow">
+                    <span class="ed-label">Repeats</span>
+                    <span class="ed-value" id="edRepeat"></span>
+                </div>
+                <div class="ed-row" id="edLocationRow">
+                    <span class="ed-label">Location</span>
+                    <span class="ed-value" id="edLocation"></span>
+                </div>
+                <div class="ed-row" id="edDescRow">
+                    <span class="ed-label">Description</span>
+                    <span class="ed-value" id="edDescription"></span>
+                </div>
+            </div>
+
+            <div class="ed-section" id="edMapSection">
+                <iframe id="edMap" class="ed-map" src="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade" title="Event location map"></iframe>
+            </div>
+
+            <div class="ed-section" id="edProgressSection">
+                <div class="ed-progress-header">
+                    <span class="ed-section-label">Progress</span>
+                    <span class="ed-progress-text" id="edProgressText"></span>
+                </div>
+                <div class="ed-progress-bar-track">
+                    <div class="ed-progress-bar-fill" id="edProgressFill"></div>
+                </div>
+            </div>
+
+            <div class="ed-section" id="edInstancesSection">
+                <span class="ed-section-label">Instances</span>
+                <div class="ed-instances-list" id="edInstancesList">
+                    <span class="ed-loading">Loading...</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="ed-edit-body" id="edEditBody" style="display:none;"></div>
+
+        <div class="ed-footer" id="edFooterMain">
+            <button class="danger-btn" id="edDeleteBtn" type="button">Delete</button>
+            <button class="nav-btn" id="edEditBtn" type="button">Edit</button>
+        </div>
+
+        <div class="ed-footer ed-footer-confirm hidden" id="edFooterConfirm">
+            <span class="ed-confirm-text">Delete this event and all its instances?</span>
+            <button class="nav-btn" id="edCancelDelete" type="button">Cancel</button>
+            <form id="edDeleteForm" method="post" action="#">
+                <input type="hidden" name="csrfmiddlewaretoken" id="edCsrfToken" value="">
+                <button class="danger-btn" type="submit">Confirm Delete</button>
+            </form>
+        </div>
+
+        <div class="ed-footer ed-footer-edit hidden" id="edFooterEdit">
+            <button class="nav-btn" id="edCancelEdit" type="button">Cancel</button>
+            <button class="nav-btn nav-btn-primary" id="edSaveEdit" type="button">Save Changes</button>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script src="{% static 'js/event_form.js' %}"></script>
+    <script src="{% static 'js/load-modal-form.js' %}"></script>
+    <script src="{% static 'js/dropdown.js' %}"></script>
+{% endblock %}

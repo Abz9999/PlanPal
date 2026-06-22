@@ -1,0 +1,207 @@
+<!-- Created by Khan, Implemented by Ashrith -->
+
+{% extends "base.html" %}
+{% load static %}
+{% load url_utilities %}
+
+{% block title %}Statistics - PlanPal{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/statistics.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="stats-shell">
+  <section class="stats-header-card">
+    <div class="planner-nav stats-toolbar">
+      <div class="stats-toolbar-copy">
+        <h1 class="stats-page-title">Statistics</h1>
+        <p class="stats-page-subtitle">
+          Track completion, consistency, and workload over time.
+        </p>
+      </div>
+
+      <div class="stats-period-switcher" role="group" aria-label="Select statistics period">
+        <a
+          class="nav-btn {% if period == 'week' %}primary{% endif %}"
+          href="?{% update_parameters period='week' %}"
+        >
+          This Week
+        </a>
+        <a
+          class="nav-btn {% if period == 'month' %}primary{% endif %}"
+          href="?{% update_parameters period='month' %}"
+        >
+          This Month
+        </a>
+        <a
+          class="nav-btn {% if period == 'all' %}primary{% endif %}"
+          href="?{% update_parameters period='all' %}"
+        >
+          All Time
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-hero" aria-label="Hero statistics">
+    <article class="stat-tile">
+      <div class="stat-num">{{ hero.total_completed }}</div>
+      <div class="stat-label">Events completed</div>
+    </article>
+
+    <article class="stat-tile">
+      <div class="stat-num">{{ hero.longest_active_streak }}</div>
+      <div class="stat-label">Longest active streak</div>
+    </article>
+
+    <article class="stat-tile">
+      <div class="stat-num">{{ hero.hours_this_month }} hrs</div>
+      <div class="stat-label">Scheduled this month</div>
+    </article>
+
+    <article class="stat-tile">
+      <div class="stat-num stat-pct-{{ hero.pct_band }}">
+        {{ hero.completion_pct }}%
+      </div>
+      <div class="stat-label">Overall completion rate</div>
+    </article>
+  </section>
+
+  <section class="stats-card">
+    <div class="stats-section-header">
+      <h2 class="stats-section-title">Category Breakdown</h2>
+      <p class="stats-section-subtitle">
+        Hours by category with per-category completion rates.
+      </p>
+    </div>
+
+    <div class="stats-category-layout">
+      <div class="stats-category-chart-wrap">
+        <canvas id="categoryDonut" width="300" height="300"></canvas>
+      </div>
+
+      <ul class="stats-category-list">
+        {% for category in categories %}
+          <li class="stats-category-item">
+            <span
+              class="stats-category-swatch"
+              style="background: {{ category.colour }};"
+              aria-hidden="true"
+            ></span>
+            <span class="stats-category-name">{{ category.name }}</span>
+            <span class="stats-category-hours">{{ category.hours }} hrs</span>
+            <span class="stats-category-rate">
+              {{ category.completion_pct }}% done
+            </span>
+          </li>
+        {% empty %}
+          <li class="stats-category-empty">
+            No category data is available for this period.
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+
+  <section class="stats-card">
+    <div class="stats-section-header">
+      <h2 class="stats-section-title">Completions Heatmap</h2>
+      <p class="stats-section-subtitle">
+        Daily completion patterns grouped into calendar weeks.
+      </p>
+    </div>
+
+    {% if heatmap %}
+      <div class="stats-heatmap" role="table" aria-label="Weekly completion heatmap">
+        <div class="heatmap-headers" role="row">
+          <span></span>
+          <span>M</span>
+          <span>T</span>
+          <span>W</span>
+          <span>T</span>
+          <span>F</span>
+          <span>S</span>
+          <span>S</span>
+        </div>
+
+        {% for week in heatmap %}
+          <div class="heatmap-row" role="row">
+            <span class="heatmap-label">{{ week.week_start|date:"M j" }}</span>
+
+            {% for count in week.days %}
+              <span
+                class="heatmap-cell"
+                data-count="{{ count }}"
+                title="{{ count }} completions"
+              ></span>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="stats-empty-message">No completions yet.</p>
+    {% endif %}
+  </section>
+
+  <section class="stats-card">
+  <div class="stats-section-header">
+    <h2 class="stats-section-title">Top Streaks</h2>
+    <p class="stats-section-subtitle">
+      Templates ranked by their current run of completed instances.
+    </p>
+  </div>
+
+  {% if streaks %}
+    <ol class="stats-streak-list">
+      {% for row in streaks %}
+        <li class="stats-streak-item">
+          <span class="stats-streak-rank">{{ forloop.counter }}</span>
+          <span class="stats-streak-title">{{ row.title }}</span>
+          <span class="stats-streak-count">{{ row.streak }} in a row</span>
+        </li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    <p class="stats-empty-message">No active streaks.</p>
+  {% endif %}
+</section>
+
+<section class="stats-card">
+  <div class="stats-section-header">
+    <h2 class="stats-section-title">Trends (last 12 weeks)</h2>
+    <p class="stats-section-subtitle">
+      Weekly completion rate and scheduled workload over time.
+    </p>
+  </div>
+
+  <div class="stats-trends-layout">
+    <div class="stats-trend-panel">
+      <h3 class="stats-trend-title">Completion Rate</h3>
+      <canvas id="trendCompletion"></canvas>
+    </div>
+
+    <div class="stats-trend-panel">
+      <h3 class="stats-trend-title">Scheduled Hours</h3>
+      <canvas id="trendHours"></canvas>
+    </div>
+  </div>
+</section>
+
+<script type="application/json" id="stats-trends-data">
+  {{ trends_json|safe }}
+</script>
+
+  
+  <script type="application/json" id="stats-categories-data">
+    {{ categories_json|safe }}
+  </script>
+</div>
+{% endblock %}
+
+
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/statistics.js' %}"></script>
+{% endblock %}

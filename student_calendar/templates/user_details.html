@@ -1,0 +1,226 @@
+<!-- Created by Codex -->
+
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User Details - PlanPal{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/user-details.css' %}">
+<style>
+  .user-details-toast-stack {
+    position: fixed;
+    top: 78px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(92vw, 420px);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1200;
+    pointer-events: none;
+  }
+
+  .user-details-toast {
+    border: 1px solid #b9e3c5;
+    background: #f3fbf6;
+    color: #1f6b3d;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    box-shadow: 0 8px 20px rgba(17, 24, 39, 0.08);
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  .user-details-toast.is-exiting {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+<div class="user-details-toast-stack" aria-live="polite" aria-atomic="true">
+  {% for message in messages %}
+    {% if 'password-change-toast' in message.tags %}
+      <div class="user-details-toast" data-toast>{{ message }}</div>
+    {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="user-details-shell">
+
+  <section class="planner-nav user-details-card">
+    <h3 class="user-details-section-title">Profile</h3>
+    <div class="user-details-profile-row">
+      {% if request.user.profile_picture %}
+        <img
+          src="{{ request.user.profile_picture.url }}"
+          alt="{{ request.user.username }} profile picture"
+          class="profile-avatar-image profile-avatar-image-large"
+        >
+      {% else %}
+        <div class="default-avatar default-avatar-large" title="{{ request.user.username }}">
+          {{ request.user.username|default:"User"|slice:":1"|upper }}
+        </div>
+      {% endif %}
+      <div>
+        <p class="user-details-profile-name">
+          {{ request.user.get_full_name|default:request.user.username }}
+        </p>
+        <p class="user-details-profile-note">
+          {% if request.user.profile_picture %}
+            Using your uploaded profile picture.
+          {% else %}
+            Default avatar in use.
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="user-details-form user-details-avatar-form">
+      {% csrf_token %}
+      {{ profile_picture_form.non_field_errors }}
+
+      <div class="user-details-field">
+        <label for="{{ profile_picture_form.profile_picture.id_for_label }}">
+          {{ profile_picture_form.profile_picture.label }}
+        </label>
+        <div class="user-details-input">
+          {{ profile_picture_form.profile_picture }}
+          {{ profile_picture_form.profile_picture.errors }}
+        </div>
+      </div>
+
+      <div class="user-details-actions">
+        <button type="submit" name="save_profile_picture" class="nav-btn primary">
+          Upload Picture
+        </button>
+      </div>
+    </form>
+
+    {% if request.user.profile_picture %}
+    <form method="post" class="user-details-form">
+      {% csrf_token %}
+      <div class="user-details-actions">
+        <button type="submit" name="remove_profile_picture" class="nav-btn">
+          Remove Picture
+        </button>
+      </div>
+    </form>
+    {% endif %}
+  </section>
+
+  <section class="planner-nav user-details-card">
+    <h2 class="user-details-title">User Details</h2>
+    <p class="user-details-subtitle">View and manage your account information.</p>
+
+    <h3 class="user-details-section-title">Current Information</h3>
+    <div class="user-details-grid">
+      <p class="user-details-label">Username</p>
+      <div class="user-details-value">{{ request.user.username|default:"-" }}</div>
+
+      <p class="user-details-label">Email</p>
+      <div class="user-details-value">{{ request.user.email|default:"-" }}</div>
+
+      <p class="user-details-label">First name</p>
+      <div class="user-details-value">{{ request.user.first_name|default:"-" }}</div>
+
+      <p class="user-details-label">Last name</p>
+      <div class="user-details-value">{{ request.user.last_name|default:"-" }}</div>
+    </div>
+  </section>
+
+  <section class="planner-nav user-details-card">
+    <h3 class="user-details-section-title">Edit Details</h3>
+    <form method="post" class="user-details-form">
+      {% csrf_token %}
+      {{ user_form.non_field_errors }}
+
+      {% for field in user_form %}
+      <div class="user-details-field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        <div class="user-details-input">
+          {{ field }}
+          {% if field.help_text %}
+          <div class="user-details-help">{{ field.help_text }}</div>
+          {% endif %}
+          {{ field.errors }}
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="user-details-actions">
+        <button type="submit" name="save_details" class="nav-btn primary">Save Changes</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="planner-nav user-details-card">
+    <h3 class="user-details-section-title">Change Password</h3>
+    <form method="post" class="user-details-form">
+      {% csrf_token %}
+      {{ password_form.non_field_errors }}
+
+      {% for field in password_form %}
+      <div class="user-details-field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        <div class="user-details-input">
+          {{ field }}
+          {% if field.help_text %}
+          <div class="user-details-help">{{ field.help_text|safe }}</div>
+          {% endif %}
+          {{ field.errors }}
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="user-details-actions">
+        <button type="submit" name="change_password" class="nav-btn primary">Update Password</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="planner-nav user-details-card user-details-danger-card">
+    <h3 class="user-details-section-title">Delete Account</h3>
+    <p class="user-details-danger-note">This action cannot be undone.</p>
+
+    <form method="post" class="user-details-form">
+      {% csrf_token %}
+      {{ delete_form.non_field_errors }}
+
+      <div class="user-details-checkbox">
+        {{ delete_form.confirm_delete }}
+        {{ delete_form.confirm_delete.label_tag }}
+      </div>
+      {{ delete_form.confirm_delete.errors }}
+
+      <div class="user-details-actions">
+        <button type="submit" name="delete_account" class="nav-btn danger">Delete Account</button>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var toasts = document.querySelectorAll('[data-toast]');
+    toasts.forEach(function (toast) {
+      setTimeout(function () {
+        toast.classList.add('is-exiting');
+        setTimeout(function () {
+          toast.remove();
+        }, 250);
+      }, 3000);
+    });
+  });
+</script>
+{% endblock %}

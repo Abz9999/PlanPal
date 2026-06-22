@@ -1,0 +1,30 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/dropdown.css' %}">
+<link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+
+<div class="dropdown">
+    <form>
+        <button class="nav-btn dropdown-dont-close-on-click" type="button" onclick="showDropdownOptions('filter-dropdown')">Filter</button>
+        <div id="filter-dropdown" class="dropdown-options" style="min-width: 190px">
+            {% for category in categories %}
+                <div class="dropdown-checkbox">
+                <input
+                    class="dropdown-checkbox dropdown-dont-close-on-click"
+                    type="checkbox"
+                    name="filter"
+                    id="check-{{ category.name }}"
+                    value="{{ category.name }}"
+                    {% if category.name in filters %}
+                        checked
+                    {% endif %}>
+                <label for="check-{{ category.name }}" class="dropdown-dont-close-on-click">{{ category.name }}</label>
+                <br>
+                </div>
+            {% endfor %}
+            <button type="submit">Filter</button>
+        </div>
+    </form>
+</div>
+
+<script src="{% static 'js/dropdown.js' %}"></script>

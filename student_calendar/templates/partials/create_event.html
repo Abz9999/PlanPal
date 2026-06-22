@@ -1,0 +1,111 @@
+<form action="{% url 'create_event' %}" method="POST" enctype="multipart/form-data" id="eventForm">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ next }}">
+
+  <div class="modal-header">
+    <h2>New Event</h2>
+    <span class="modal-step-label" id="stepLabel"></span>
+  </div>
+
+  <div class="step-progress" id="stepProgress"></div>
+
+  <div class="modal-body">
+
+    <div class="form-step active">
+      <p class="step-title">Title</p>
+      <p class="step-description">Give your event a name.</p>
+      {{ form.title }}
+    </div>
+
+    <div class="form-step">
+      <p class="step-title">Category</p>
+      <p class="step-description">What type of event is this?</p>
+      {{ form.category }}
+    </div>
+
+    <div class="form-step optional">
+      <p class="step-title">Date <span style="font-weight:400; text-transform:none; letter-spacing:0;">(optional)</span></p>
+      <p class="step-description">When does your event start and end?</p>
+      <div class="date-row">
+        <div>
+          <label>Start date</label>
+          {{ form.start_date }}
+        </div>
+        <div>
+          <label>Start time</label>
+          {{ form.start_time }}
+        </div>
+      </div>
+      <div class="date-row">
+        <div>
+          <label>End date</label>
+          {{ form.end_date }}
+        </div>
+        <div>
+          <label>End time</label>
+          {{ form.end_time }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-step">
+      <p class="step-title">Duration</p>
+      <p class="step-description">How long will this event last?</p>
+      <div class="duration-row">
+        {{ form.hours }}<span>hrs</span>{{ form.minutes }}<span>mins</span>
+      </div>
+    </div>
+
+    <div class="form-step optional">
+      <p class="step-title">Location <span style="font-weight:400; text-transform:none; letter-spacing:0;">(optional)</span></p>
+      <p class="step-description">Where is this event taking place?</p>
+      {{ form.location }}
+    </div>
+
+    <div class="form-step">
+      <p class="step-title">Repeat</p>
+      <p class="step-description">Enter how many days per week, then select those days below.</p>
+      {{ form.number_of_days }}
+      <div class="checkbox-group">
+        {% for value, label in form.repeat_days.field.choices %}
+          <label>
+            <input type="checkbox" name="repeat_days" value="{{ value }}">
+            {{ label }}
+          </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-step">
+      <p class="step-title">Weeks</p>
+      <p class="step-description">How many weeks does this event repeat for?</p>
+      {{ form.repeat_weeks }}
+    </div>
+
+    <div class="form-step optional">
+      <p class="step-title">Description <span style="font-weight:400; text-transform:none; letter-spacing:0;">(optional)</span></p>
+      <p class="step-description">Add any extra details.</p>
+      {{ form.description }}
+    </div>
+
+    <div class="form-step">
+      <p class="step-title">Importance</p>
+      <p class="step-description">How important is this event relative to others?</p>
+      {{ form.importance }}
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <div class="modal-footer-left">
+      <button type="button" class="modal-btn modal-btn-ghost cancel-btn">Cancel</button>
+    </div>
+    <div class="modal-footer-right">
+      <button type="button" class="modal-btn modal-btn-secondary prev-btn">Back</button>
+      <button type="button" class="modal-btn modal-btn-secondary skip-btn">Skip</button>
+      <button type="button" class="modal-btn modal-btn-primary next-btn">Next</button>
+      <button type="submit" class="modal-btn modal-btn-primary submit-btn">Create</button>
+    </div>
+  </div>
+
+</form>

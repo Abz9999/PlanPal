@@ -1,0 +1,21 @@
+{% load static %}
+{% load url_utilities %}
+
+<link rel="stylesheet" href="{% static 'css/page_navigator.css' %}">
+{% if page_object.paginator.num_pages > 1 %}
+    <ul class="page-navigator">
+        {% if page_object.has_previous %}
+            <li><a href="?{% update_parameters page=1 %}">First</a></li>
+            <li><a href="?{% update_parameters page=page_object.previous_page_number %}">Previous</a></li>
+        {% endif %}
+        {% for page_number in page_object.paginator.page_range %}
+            {% if page_number >= page_object.number|add:-3 and page_number <= page_object.number|add:3 %}
+                <li><a {% if page_number == page_object.number %} class="current" {% endif %} href="?{% update_parameters page=page_number %}">{{ page_number }}</a></li>
+            {% endif %}
+        {% endfor %}
+        {% if page_object.has_next %}
+            <li><a href="?{% update_parameters page=page_object.next_page_number %}">Next</a></li>
+            <li><a href="?{% update_parameters page=page_object.paginator.num_pages %}">Last</a></li>
+        {% endif %}
+    </ul>
+{% endif %}

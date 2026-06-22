@@ -1,0 +1,91 @@
+{% load static %}
+<form id="edEditForm" class="ed-edit-form" data-event-id="{{ event.id }}">
+    {% csrf_token %}
+
+    <div class="ed-edit-field">
+        <label class="ed-edit-label">Title</label>
+        {{ form.title }}
+    </div>
+
+    <div class="ed-edit-row">
+        <div class="ed-edit-field">
+            <label class="ed-edit-label">Start Date</label>
+            {{ form.start_date }}
+        </div>
+        <div class="ed-edit-field">
+            <label class="ed-edit-label">Start Time</label>
+            {{ form.start_time }}
+        </div>
+    </div>
+
+    <div class="ed-edit-row">
+        <div class="ed-edit-field">
+            <label class="ed-edit-label">End Date</label>
+            {{ form.end_date }}
+        </div>
+        <div class="ed-edit-field">
+            <label class="ed-edit-label">End Time</label>
+            {{ form.end_time }}
+        </div>
+    </div>
+
+    <div class="ed-edit-row">
+        <div class="ed-edit-field">
+            <label class="ed-edit-label">Hours</label>
+            {{ form.hours }}
+        </div>
+        <div class="ed-edit-field">
+            <label class="ed-edit-label">Minutes</label>
+            {{ form.minutes }}
+        </div>
+    </div>
+
+    <div class="ed-edit-field">
+        <label class="ed-edit-label">Category</label>
+        {{ form.category }}
+    </div>
+
+    <div class="ed-edit-field">
+        <label class="ed-edit-label">Importance</label>
+        {{ form.importance }}
+    </div>
+
+    <div class="ed-edit-field">
+        <label class="ed-edit-label">Location</label>
+        {{ form.location }}
+    </div>
+
+    <div class="ed-edit-field">
+        <label class="ed-edit-label">Description</label>
+        {{ form.description }}
+    </div>
+
+    <div class="ed-edit-field">
+        <label class="ed-edit-label">Days Per Week</label>
+        {{ form.number_of_days }}
+    </div>
+
+    <div class="ed-edit-field">
+        <label class="ed-edit-label">Repeat Days</label>
+        <div class="checkbox-group">
+            {% for value, label in form.repeat_days.field.choices %}
+                <label>
+                    <input type="checkbox" name="repeat_days" value="{{ value }}"
+                           {% if value in selected_days %}checked{% endif %}>
+                    {{ label }}
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="ed-edit-field">
+        <label class="ed-edit-label">Repeat Weeks</label>
+        {{ form.repeat_weeks }}
+    </div>
+
+    <div id="edEditErrors" class="ed-edit-errors hidden"></div>
+
+    {{ form.start }}
+    {{ form.end }}
+    {{ form.duration }}
+</form>

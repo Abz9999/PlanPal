@@ -1,0 +1,128 @@
+<!-- Created by Khan -->
+<!-- Base layout for ALL pages -->
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>{% block title %}PlanPal{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+  <style>
+    .profile-menu { position: relative; display: flex; align-items: center; }
+    .profile-menu summary { list-style: none; cursor: pointer; outline: none; }
+    .profile-menu summary::-webkit-details-marker { display: none; }
+    .profile-menu summary:focus,
+    .profile-menu summary:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.10);
+      border-radius: 999px;
+    }
+    .default-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #e9eef6;
+      border: 1px solid #d7dfea;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+    }
+    .profile-avatar-image {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid #d7dfea;
+      display: inline-block;
+      background: #f8fafc;
+    }
+    .default-avatar-large {
+      width: 88px;
+      height: 88px;
+      font-size: 30px;
+    }
+  </style>
+  <link rel="stylesheet" href="{% static 'css/ui.css' %}">
+
+  <!-- Page-specific CSS/Head content goes here -->
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+
+
+  <!-- Global Nav -->
+  {% with current=request.resolver_match.url_name %}
+  <header style="width:100%; height:56px; background:#f8f9fa; display:flex; align-items:center; justify-content:space-between; padding:0 24px; box-sizing:border-box; position:relative;">
+
+    <!-- Brand -->
+    <div style="display:flex; align-items:center;">
+      <a href="{% url 'main_page' %}"
+         style="display:flex; align-items:center; gap:10px; font-weight:700; font-size:18px; color:inherit; text-decoration:none;">
+        <div style="width:14px; height:14px; border-radius:50%; background:#111;"></div>
+        <span>PlanPal</span>
+      </a>
+    </div>
+
+    <!-- Nav links -->
+    <nav class="header-nav" style="position:absolute; left:50%; transform:translateX(-50%); display:flex; gap:4px; align-items:center;">
+      <a class="nav-btn {% if current == 'main_page' %}primary{% endif %}" href="{% url 'main_page' %}">Home</a>
+      <a class="nav-btn {% if current == 'dashboard' %}primary{% endif %}" href="{% url 'dashboard' %}">Dashboard</a>
+      <a class="nav-btn {% if current == 'completed_events' %}primary{% endif %}" href="{% url 'completed_events' %}">Completed</a>
+      <a class="nav-btn {% if current == 'statistics' %}primary{% endif %}" href="{% url 'statistics' %}">Statistics</a>
+    </nav>
+
+    <!-- Profile dropdown -->
+    <div style="display:flex; align-items:center;">
+      <div class="profile-dropdown">
+        <button class="profile-btn" id="profile-btn" title="{{ user.username }}">
+          {% if request.user.profile_picture %}
+            <img
+              src="{{ request.user.profile_picture.url }}"
+              alt="{{ request.user.username }} profile picture"
+              class="profile-avatar-image"
+            >
+          {% else %}
+            {{ request.user.username|default:"User"|slice:":1"|upper }}
+          {% endif %}
+        </button>
+        <div class="profile-menu" id="profile-menu">
+          <div class="menu-label">{{ user.username }}</div>
+          <div class="menu-divider"></div>
+          <a href="{% url 'user_details' %}" {% if current == 'user_details' %}style="font-weight:600;"{% endif %}>User Preferences</a>
+          <div class="menu-divider"></div>
+          <a class="danger" href="{% url 'log_out' %}">Log Out</a>
+        </div>
+      </div>
+    </div>
+
+  </header>
+  {% endwith %}
+
+  {% block toolbar %}{% endblock %}
+ 
+  <main class="site-main">
+    {% block content %}{% endblock %}
+  </main>
+
+<!-- Page-specific scripts go here -->
+  {% block extra_scripts %}{% endblock %}
+
+  <!-- Global UI scripts -->
+  <script src="{% static 'js/ui.js' %}"></script>
+
+</body>
+</html>

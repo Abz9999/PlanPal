@@ -1,0 +1,36 @@
+hr {
+    border: 1px solid black;
+}
+
+.details {
+    margin-left: 100px;
+    margin-right: 100px;
+    padding: 10px 50px;
+    outline: 2px solid black;
+    border: 2px solid;
+    border-radius: 10px;
+}
+
+#importance_1 {
+    border-color: red;
+}
+
+#importance_2 {
+    border-color: orange;
+}
+
+#importance_3 {
+    border-color: yellow;
+}
+
+#importance_4 {
+    border-color: green;
+}
+
+#importance_5 {
+    border-color: blue;
+}
+
+.event-title {
+    text-align: center;
+}

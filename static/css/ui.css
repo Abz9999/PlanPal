@@ -1,0 +1,105 @@
+
+
+body {
+  font-family: 'Roboto', sans-serif;
+  min-width: 1100px;
+  margin: 0;
+  padding: 0;
+}
+
+body.cal-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+body.cal-page .site-main {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-nav .nav-btn {
+  border: none;
+  background: transparent;
+  color: #111;
+}
+.header-nav .nav-btn:hover {
+  background: #f1f3f4;
+}
+.header-nav .nav-btn.primary {
+  background: #111;
+  color: #fff;
+  border: none;
+}
+.header-nav .nav-btn.primary:hover {
+  background: #222;
+}
+
+.profile-dropdown {
+  position: relative;
+}
+
+.profile-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e9eef6;
+  border: 1px solid #d7dfea;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+}
+.profile-btn:hover {
+  background: #dce4f0;
+}
+
+.profile-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  min-width: 160px;
+  z-index: 200;
+  overflow: hidden;
+}
+.profile-menu.open {
+  display: block;
+}
+.profile-menu a {
+  display: block;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #111;
+  text-decoration: none;
+}
+.profile-menu a:hover {
+  background: #f5f5f5;
+}
+.profile-menu a.danger {
+  color: #c0392b;
+}
+.profile-menu a.danger:hover {
+  background: #fff5f5;
+}
+.profile-menu .menu-divider {
+  height: 1px;
+  background: #eee;
+  margin: 4px 0;
+}
+.profile-menu .menu-label {
+  padding: 8px 16px 4px 16px;
+  font-size: 12px;
+  color: #888;
+}

@@ -1,0 +1,29 @@
+{
+  "name": "major-group-project",
+  "version": "1.0.0",
+  "description": "Team Members",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theo-neo-games/major-group-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/theo-neo-games/major-group-project/issues"
+  },
+  "homepage": "https://github.com/theo-neo-games/major-group-project#readme",
+  "devDependencies": {
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0"
+  },
+  "jest": {
+    "testMatch": ["**/*.test.js"],
+    "testEnvironment": "jsdom"
+  }
+}

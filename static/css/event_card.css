@@ -1,0 +1,207 @@
+/* - Khan */
+/* redesigned event cards for the dashboard */
+/* title in centre, duration bottom left, counter bottom right */
+/* Background colour comes from the event's category (faded) */
+/* Border colour comes from importance level - red = critical, blue = very low */
+
+/* title sits centred vertically and horizontally in the card */
+
+/* Khan - event template card outer wrapper */
+.event-card {
+    width: 100%;
+    box-sizing: border-box;
+    height: 100px;
+    border-radius: 14px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border: 3px solid #ccc;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    position: relative;
+}
+
+.event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.13);
+}
+
+/* Khan - importance border colours, 1 = most critical (red), 5 = low (blue) */
+.event-card.importance-1 { border-color: #c53030; }
+.event-card.importance-2 { border-color: #c05621; }
+.event-card.importance-3 { border-color: #b7791f; }
+.event-card.importance-4 { border-color: #276749; }
+.event-card.importance-5 { border-color: #2b6cb0; }
+
+/* Khan - instance card outer wrapper, used in popup and completed page */
+.instance-card {
+    width: 100%;
+    box-sizing: border-box;
+    height: 90px;
+    border-radius: 12px;
+    padding: 8px 12px;
+    border: 3px solid #ccc;
+    flex-shrink: 0;
+}
+
+/* Khan - 5-slot grid layout, shared by both template cards and instance cards
+   slots: tl=top-left, tr=top-right, mid=middle-centre, bl=bottom-left, br=bottom-right */
+.card-layout {
+    display: grid;
+    grid-template-areas:
+        "tl tr"
+        "mid mid"
+        "bl br";
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr auto;
+    height: 100%;
+}
+
+/* Khan - individual slot positioning */
+.slot-tl  { grid-area: tl;  display: flex; align-items: center; }
+.slot-tr  { grid-area: tr;  display: flex; align-items: center; justify-content: flex-end; position: relative; }
+.slot-mid { grid-area: mid; display: flex; align-items: center; justify-content: center; }
+.slot-bl  { grid-area: bl;  display: flex; align-items: flex-end; }
+.slot-br  { grid-area: br;  display: flex; align-items: flex-end; justify-content: flex-end; }
+
+/* Khan - title text in slot-mid, shared by both card types */
+.card-title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: center;
+    color: #1a1a1a;
+}
+
+/* Khan - duration text in slot-bl, shared by both card types */
+.card-duration {
+    font-size: 0.68rem;
+    color: #444;
+    font-weight: 500;
+}
+
+/* Khan - counter pill in slot-br, shared by both card types */
+.card-counter {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    background: rgba(0, 0, 0, 0.08);
+    padding: 1px 7px;
+    border-radius: 20px;
+}
+
+/* Khan - progress percentage pill in slot-tl of template cards */
+.progress-pill {
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.08);
+    padding: 2px 6px;
+    border-radius: 20px;
+    color: #444;
+}
+
+/* Khan - 3 dots button in slot-tr of template cards, invisible until card hovered */
+.card-dots-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #555;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    padding: 2px 6px;
+    border-radius: 6px;
+    line-height: 1;
+}
+
+/* Khan - reveal dots only when the whole card is hovered */
+.event-card:hover .card-dots-btn {
+    opacity: 1;
+}
+
+.card-dots-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+/* Khan - dropdown menu that appears below the dots button when clicked */
+.card-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #d7dfea;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.13);
+    display: none;
+    flex-direction: column;
+    z-index: 100;
+    overflow: hidden;
+    min-width: 140px;
+}
+
+.card-dropdown.open {
+    display: flex;
+}
+
+/* Khan - dropdown menu items */
+.dropdown-item {
+    padding: 9px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    text-align: left;
+    width: 100%;
+    color: #1a1a1a;
+}
+
+.dropdown-item:hover {
+    background: #f0f4f8;
+}
+
+.dropdown-item.danger {
+    color: #c53030;
+}
+
+.dropdown-item.danger:hover {
+    background: #fff5f5;
+}
+
+/* Khan - instance number label in slot-tr */
+.instance-num {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #666;
+}
+
+/* Khan - complete and missed circle buttons in slot-tl of instance cards */
+.status-circles {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.status-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid;
+    cursor: pointer;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: transparent;
+    line-height: 1;
+    transition: all 0.15s ease;
+}
+
+/* Khan - green circle = mark as completed */
+.complete-btn { border-color: #276749; color: #276749; }
+.complete-btn.active { background: #276749; color: white; }
+.complete-btn:hover:not(.active) { background: rgba(39, 103, 73, 0.12); }
+
+/* Khan - red circle = mark as missed */
+.missed-btn { border-color: #c53030; color: #c53030; }
+.missed-btn.active { background: #c53030; color: white; }
+.missed-btn:hover:not(.active) { background: rgba(197, 48, 48, 0.12); }

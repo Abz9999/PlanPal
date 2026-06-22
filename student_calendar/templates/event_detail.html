@@ -1,0 +1,58 @@
+<!-- Created by Theo -->
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/event_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="details" id="importance_{{ event.importance }}">
+        <h1 class="event-title">{{ event.title }}</h1>
+        <hr>
+        {% if event.start and event.end %}
+            {% if event.start.year == 1970 %}
+                <h3>{{ event.start|time:"H:i" }} – {{ event.end|time:"H:i" }}</h3>
+            {% else %}
+                <h3>{{ event.start }} – {{ event.end }}</h3>
+            {% endif %}
+        {% else %}
+            <h3>Duration: {{ event.duration_format }}</h3>
+        {% endif %}
+        <h3>Importance: {{ event.get_importance_display }}</h3>
+        <hr>
+        <h3>{{ event.description }}</h3>
+
+        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            Delete Event
+        </button>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete "{{ event.title }}"?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <form method="post" action="{% url 'delete_event' event.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

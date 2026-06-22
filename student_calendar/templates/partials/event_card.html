@@ -1,0 +1,78 @@
+<!-- By Theo / Khan -->
+{% load static %}
+
+<div id="card-{{ event.id }}"
+     class="event-card"
+     onclick="{% if modal_id %}openModal('{{ modal_id }}'){% else %}openEventDetail(this){% endif %}"
+     style="background-color: {{ event.category.colour|default:'#888888' }}20;
+            border-color: {% if event.importance == 5 %}#c53030{% elif event.importance == 4 %}#c05621{% elif event.importance == 3 %}#b7791f{% elif event.importance == 2 %}#276749{% else %}#2b6cb0{% endif %};"
+     data-event-id="{{ event.id }}"
+     data-title="{{ event.title|escapejs }}"
+     data-category="{{ event.category.name|default:''|escapejs }}"
+     data-category-colour="{{ event.category.colour|default:'#888888' }}"
+     data-importance="{{ event.get_importance_display }}"
+     data-importance-level="{{ event.importance }}"
+     data-has-times="{% if event.start and event.end and event.start.year != 1970 %}true{% else %}false{% endif %}"
+     data-time-only="{% if event.start and event.end and event.start.year == 1970 %}true{% else %}false{% endif %}"
+     data-start="{% if event.start and event.start.year != 1970 %}{{ event.start|default:'' }}{% endif %}"
+     data-end="{% if event.end and event.end.year != 1970 %}{{ event.end|default:'' }}{% endif %}"
+     data-constrained-time="{% if event.start and event.start.year == 1970 %}{{ event.start|time:'H:i' }}{% if event.end %} – {{ event.end|time:'H:i' }}{% endif %}{% endif %}"
+     data-duration="{{ event.duration_format }}"
+     data-repeat-days="{{ event.get_repeat_days_display|default:''|escapejs }}"
+     data-repeat-weeks="{{ event.repeat_weeks|default:'' }}"
+     data-location="{{ event.location|default:''|escapejs }}"
+     data-description="{{ event.description|default:''|escapejs }}"
+     data-scheduled="{{ event.scheduled_count|default:0 }}"
+     data-completed="{{ event.completed_count|default:0 }}"
+     data-max="{{ event.max_instances|default:0 }}"
+     data-detail-url="{% url 'event_detail' event.id %}"
+     data-delete-url="{% url 'delete_event' event.id %}"
+     data-edit-url="{% url 'edit_event' event.id %}">
+
+    <div class="card-layout">
+
+        <div class="slot-tl">
+            {% if event.max_instances %}
+                <span class="progress-pill">{% widthratio event.completed_count|default:0 event.max_instances 100 %}%</span>
+            {% endif %}
+        </div>
+
+        <div class="slot-tr">
+            <button class="card-dots-btn"
+                    onclick="toggleDropdown(event, {{ event.id }})"
+                    title="Options">&#8942;</button>
+            <div class="card-dropdown" id="dropdown-{{ event.id }}">
+                <button class="dropdown-item" onclick="editEvent(event, {{ event.id }})">Edit</button>
+                <form action="{% url 'delete_event' event.id %}" method="post" style="margin:0;"
+                      onclick="event.stopPropagation()"
+                      onsubmit="return confirmDelete('{{ event.title }}')">
+                    {% csrf_token %}
+                    <button class="dropdown-item danger" type="submit">Delete</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="slot-mid">
+            <h5 class="card-title">{{ event.title }}</h5>
+        </div>
+
+        <div class="slot-bl">
+            <span class="card-duration">{{ event.duration_format }}</span>
+        </div>
+
+        <div class="slot-br">
+            {% if total_count %}
+                <span class="completed-badge">&#10003; {{ completed_count }} / {{ total_count }}</span>
+            {% else %}
+                <span class="card-counter">
+                    {% if event.max_instances %}
+                        {{ event.placed_count }} / {{ event.max_instances }}
+                    {% else %}
+                        — / —
+                    {% endif %}
+                </span>
+            {% endif %}
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,513 @@
+<!-- Created by Wazna and Bliss -->
+<!-- Modified by: Khan, Aman, Ashrith -->
+
+{% extends "base.html" %}
+{% load static %}
+{% load url_utilities %}
+
+{% block title %}PlanPal{% endblock %}
+
+{% block body_class %}cal-page{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/calendar-grid.css' %}">
+    <link rel="stylesheet" href="{% static 'css/event_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/smart_planner.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dropdown.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main_page.css' %}">
+{% endblock %}
+
+{% block toolbar %}
+
+{# Main page navigation bar #}
+<div id="main-page-nav-bar">
+
+  <div id="left-nav-bar-items">
+    {# Smart planner button #}
+    <button class="nav-btn primary" type="button" id="btn-smart-plan">Smart Plan</button>
+
+    {# Clear schedule button #}
+    <form action="{% url 'clear_schedule' %}" method="post" id="clear-sched-form">
+      {% csrf_token %}
+      <button class="nav-btn danger" type="submit">Clear Schedule</button>
+    </form>
+
+    {# Mini calendar for date selection #}
+    <div id="mini-cal-wrapper">
+      <button class="nav-btn" id="mini-cal-btn" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" id="mini-cal-svg"><path d="M224 64C206.3 64 192 78.3 192 96L192 128L160 128C124.7 128 96 156.7 96 192L96 240L544 240L544 192C544 156.7 515.3 128 480 128L448 128L448 96C448 78.3 433.7 64 416 64C398.3 64 384 78.3 384 96L384 128L256 128L256 96C256 78.3 241.7 64 224 64zM96 288L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 288L96 288z"/></svg>
+        Choose Week
+      </button>
+      <div id="mini-cal">
+        <div id="mini-cal-page-header">
+          <button id="mini-cal-prev">&#8249;</button>
+          <span id="mini-cal-title"></span>
+          <button id="mini-cal-next">&#8250;</button>
+        </div>
+        <div id="mini-cal-day-header">
+          {% for d in 'MTWTFSS' %}<span class="day-span">{{ d }}</span>{% endfor %}
+        </div>
+        <div id="mini-cal-days"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="center-nav-bar-items">
+    {# Create event button #}
+    <button class="nav-btn" type="button" id="btn-create-event">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 40" id="create-event-svg"><defs><style>.cls-1{fill-rule:evenodd;}</style></defs><g data-name="add calendar"><path class="cls-1" d="M12,5h8a1,1,0,0,0,0-2H12a1,1,0,0,0,0,2Z"/><path class="cls-1" d="M9,7a1,1,0,0,0,1-1V2A1,1,0,0,0,8,2V6A1,1,0,0,0,9,7Z"/><path class="cls-1" d="M23,7a1,1,0,0,0,1-1V2a1,1,0,0,0-2,0V6A1,1,0,0,0,23,7Z"/><path class="cls-1" d="M30.121,3.879A3,3,0,0,0,28,3H26a1,1,0,0,0,0,2h2a1,1,0,0,1,1,1V9H25a1,1,0,0,0,0,2h4V28a1,1,0,0,1-1,1H4a1,1,0,0,1-1-1V11H21a1,1,0,0,0,0-2H3V6A1,1,0,0,1,4,5H6A1,1,0,0,0,6,3H4A3,3,0,0,0,1,6V28a3,3,0,0,0,3,3H28a3,3,0,0,0,3-3V6A3,3,0,0,0,30.121,3.879Z"/><path class="cls-1" d="M16,25a1,1,0,0,0,1-1V21h3a1,1,0,0,0,0-2H17V16a1,1,0,0,0-2,0v3H12a1,1,0,0,0,0,2h3v3A1,1,0,0,0,16,25Z"/></g></svg>
+      Create Event
+    </button>
+
+    {# Page navigation and date display #}
+    <div id="main-page-navigation">
+      <a class="nav-btn" href="?{% update_parameters week=prev_page %}">&#8249;</a>
+      <h2 id="dateText"></h2>
+      <a class="nav-btn" href="?{% update_parameters week=next_page %}">&#8250;</a>
+    </div>
+
+    {# Schedule dropdown menu #}
+    <div id="schedule-switcher-wrapper">
+        <button class="nav-btn" type="button" id="btn-switch-schedule">
+            <span id="active-schedule-name">Select Schedule</span> &#9662;
+        </button>
+        <div id="schedule-dropdown">
+            <div id="schedule-list"></div>
+        </div>
+    </div>
+
+  </div>
+
+  {# Filter dropdown menu #}
+  <div id="filter-dropdown-wrapper">
+    <div class="dropdown-right">
+      {% include "partials/filter_dropdown.html" with categories=filter_options filters=filter %}
+    </div>
+
+    {% with active_view=type|default:'week' %}
+    <select class="nav-select" onchange="window.location.href=this.value">
+      <option value="?{% update_parameters type='day' %}"
+              {% if active_view == 'day' %}selected{% endif %}>Day</option>
+      <option value="?{% update_parameters type='week' %}"
+              {% if active_view == 'week' %}selected{% endif %}>Week</option>
+      <option value="?{% update_parameters type='month' %}"
+              {% if active_view == 'month' %}selected{% endif %}>Month</option>
+    </select>
+    {% endwith %}
+  </div>
+
+</div>
+
+{# Delete schedule confirmation modal #}
+<div id="deleteScheduleModal" class="modal hidden main-page-schedule">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Delete Schedule</h2>
+    </div>
+    <div class="modal-body">
+      <p id="delete-schedule-message"></p>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-left"></div>
+      <div class="modal-footer-right">
+        <button class="modal-btn modal-btn-secondary" id="delete-schedule-cancel">Cancel</button>
+        <button class="modal-btn" id="delete-schedule-confirm">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# New schedule modal #}
+<div id="newScheduleModal" class="modal hidden main-page-schedule">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>New Schedule</h2>
+    </div>
+    <div class="modal-body">
+      <label id="schedule-label">Schedule name</label>
+      <input id="new-schedule-title" type="text" placeholder="e.g. Semester 2">
+      <p id="new-schedule-error"></p>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-left"></div>
+      <div class="modal-footer-right">
+        <button class="modal-btn modal-btn-secondary" id="new-schedule-cancel">Cancel</button>
+        <button class="modal-btn modal-btn-primary" id="new-schedule-submit">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Create event modal #}
+<div id="eventModal" class="modal hidden">
+  <div class="modal-content">
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+{# Event detail popup #}
+<div id="detailModal" class="modal hidden">
+  <div class="modal-content detail-modal-content">
+    <div class="detail-header">
+      <h2 id="detail-title"></h2>
+      <div class="detail-header-actions">
+        <div class="detail-options-wrap">
+          <button class="detail-options-btn" id="detail-options-btn">&#x22EE;</button>
+          <div class="detail-options-menu hidden" id="detail-options-menu">
+            <button class="detail-option-item detail-option-delete" id="detail-delete">Remove from calendar</button>
+          </div>
+        </div>
+        <button class="detail-close" id="detail-close">&#x2715;</button>
+      </div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-row" id="detail-category-row">
+        <span class="detail-label">Category</span>
+        <span class="detail-value" id="detail-category"></span>
+      </div>
+      <div class="detail-row" id="detail-time-row">
+        <span class="detail-label">Time</span>
+        <span class="detail-value" id="detail-time"></span>
+      </div>
+      <div class="detail-row" id="detail-duration-row">
+        <span class="detail-label">Duration</span>
+        <span class="detail-value" id="detail-duration"></span>
+      </div>
+      <div class="detail-row" id="detail-location-row">
+        <span class="detail-label">Location</span>
+        <span class="detail-value" id="detail-location"></span>
+      </div>
+      <div class="detail-row" id="detail-importance-row">
+        <span class="detail-label">Importance</span>
+        <span class="detail-value" id="detail-importance"></span>
+      </div>
+      <div class="detail-row" id="detail-description-row">
+        <span class="detail-label">Description</span>
+        <span class="detail-value" id="detail-description"></span>
+      </div>
+    </div>
+    <div class="detail-footer">
+      <label class="detail-complete-label">
+        <input type="checkbox" id="detail-completed" class="detail-checkbox">
+        <span>Mark as completed</span>
+      </label>
+    </div>
+  </div>
+</div>
+
+{# Khan - Smart Planner Modal Popup #}
+{# This is hidden by default and opened when user clicks Smart Plan button #}
+<div id="smartPlannerModal" class="hidden">
+    <div class="sp-modal-content">
+
+        <!-- Khan - Header: title + X close button -->
+        <div class="sp-modal-header">
+            <h2>Smart Planner</h2>
+            <button class="sp-close-btn" id="sp-close-btn" title="Close">&#x2715;</button>
+        </div>
+
+        <!-- Khan - Two progress bars at the top - one per step -->
+        <div class="sp-step-progress">
+            <div class="sp-step-dot done" id="sp-dot-1"></div>
+            <div class="sp-step-dot"      id="sp-dot-2"></div>
+        </div>
+
+        <!-- Khan - Scrollable body holds the two steps -->
+        <div class="sp-modal-body">
+
+            <!-- Khan - STEP 1: Constraints -->
+            <div class="sp-step active" id="sp-step-1">
+
+                <p class="sp-section-label">Step 1 of 2 &mdash; Set Your Planning Constraints</p>
+
+                <!-- Khan - Error div lives at the TOP now so users always see it without scrolling -->
+                <div class="sp-error" id="sp-step1-error"></div>
+
+                <!-- Date Range -->
+                <p class="sp-section-label sp-mt">Date Range</p>
+                <div class="sp-row-2col">
+                    <div class="sp-field">
+                        <label for="sp-start-date">Start Date</label>
+                        <input type="date" id="sp-start-date">
+                    </div>
+                    <div class="sp-field">
+                        <label for="sp-end-date">End Date</label>
+                        <input type="date" id="sp-end-date">
+                    </div>
+                </div>
+
+                <!-- Daily Time Window -->
+                <p class="sp-section-label sp-mt">Daily Routine Window</p>
+                <div class="sp-row-2col">
+                    <div class="sp-field">
+                        <label for="sp-day-start">Routine Starts At</label>
+                        <input type="time" id="sp-day-start" value="08:00">
+                    </div>
+                    <div class="sp-field">
+                        <label for="sp-day-end">Routine Ends At</label>
+                        <input type="time" id="sp-day-end" value="22:00">
+                    </div>
+                </div>
+
+                <!-- Active Days Selector -->
+                <!-- Khan - Mon-Sun pills, Mon-Fri ticked by default, weekend unticked -->
+                <p class="sp-section-label sp-mt">Active Days</p>
+                <div class="sp-day-selector">
+                    <label class="sp-day-pill selected" data-day="1">
+                        <input type="checkbox" value="1" checked> Mon
+                    </label>
+                    <label class="sp-day-pill selected" data-day="2">
+                        <input type="checkbox" value="2" checked> Tue
+                    </label>
+                    <label class="sp-day-pill selected" data-day="4">
+                        <input type="checkbox" value="4" checked> Wed
+                    </label>
+                    <label class="sp-day-pill selected" data-day="8">
+                        <input type="checkbox" value="8" checked> Thu
+                    </label>
+                    <label class="sp-day-pill selected" data-day="16">
+                        <input type="checkbox" value="16" checked> Fri
+                    </label>
+                    <label class="sp-day-pill" data-day="32">
+                        <input type="checkbox" value="32"> Sat
+                    </label>
+                    <label class="sp-day-pill" data-day="64">
+                        <input type="checkbox" value="64"> Sun
+                    </label>
+                </div>
+
+                <!-- Buffer Time -->
+                <p class="sp-section-label sp-mt">Minimum Buffer Between Events</p>
+                <div class="sp-field">
+                    <label for="sp-buffer">Gap Size</label>
+                    <select id="sp-buffer">
+                        <option value="15">15 minutes</option>
+                        <option value="30" selected>30 minutes</option>
+                        <option value="45">45 minutes</option>
+                        <option value="60">60 minutes</option>
+                    </select>
+                </div>
+
+                <!-- Keep or Erase Existing Events -->
+                <!-- Khan - This decides whether scheduled events are treated as blocked or wiped -->
+                <p class="sp-section-label sp-mt">Existing Scheduled Events</p>
+                <div class="sp-toggle-row">
+                    <div class="sp-toggle-option selected" id="sp-keep-btn"
+                         onclick="spSetKeepErase('keep')">
+                        <strong>Keep</strong>
+                        Plan around my existing events
+                    </div>
+                    <div class="sp-toggle-option" id="sp-erase-btn"
+                         onclick="spSetKeepErase('erase')">
+                        <strong>Erase &amp; Replan</strong>
+                        Clear schedule and start fresh
+                    </div>
+                </div>
+
+            </div>
+            <!-- End Step 1 -->
+
+            <!-- Khan - STEP 2: Event Selection -->
+            <div class="sp-step" id="sp-step-2">
+
+                <p class="sp-section-label">Step 2 of 2 &mdash; Choose Events to Smart Plan</p>
+
+                <!-- Khan - Filter row: select-all checkbox | category dropdown | search bar -->
+                <div class="sp-filter-row">
+
+                    <!-- Khan - Select all checkbox on the far left of the filter bar -->
+                    <label class="sp-select-all-label" title="Select / deselect all visible events">
+                        <input type="checkbox" id="sp-select-all" onchange="spToggleSelectAll(this)">
+                        All
+                    </label>
+
+                    <select id="sp-category-filter" onchange="spFilterEvents()">
+                        <option value="all">All Categories</option>
+                        <!-- Khan - Filled dynamically by smart_planner.js when events load -->
+                    </select>
+                    <input type="text"
+                           id="sp-search"
+                           placeholder="Search by event title..."
+                           oninput="spFilterEvents()">
+                </div>
+
+                <div class="sp-event-list" id="sp-event-list">
+                    <div class="sp-empty-msg">Loading your events...</div>
+                </div>
+
+            </div>
+            <!-- End Step 2 -->
+
+        </div>
+        <!-- End modal body -->
+
+        <!-- Khan - Footer: Back on left, Cancel + Next on right -->
+        <div class="sp-modal-footer">
+            <div class="sp-footer-left">
+                <button class="nav-btn"
+                        id="sp-back-btn"
+                        onclick="spBack()"
+                        style="display:none;">
+                    &larr; Back
+                </button>
+            </div>
+            <div class="sp-footer-right">
+                <button class="nav-btn" onclick="closeSmartPlanner()">Cancel</button>
+                <button class="nav-btn primary" id="sp-next-btn" onclick="spNext()">Next &rarr;</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+{# End Smart Planner Modal #}
+
+{# Khan - Pre-Check Warning Overlay (Task 6) #}
+{# This pops up over the smart planner when the sanity check detects a time shortfall #}
+{# It's hidden by default and only shown if total_required > total_available #}
+<div id="sp-precheck-overlay" class="sp-precheck-overlay hidden">
+    <div class="sp-precheck-box">
+
+        {# Khan - Header with warning icon and title #}
+        <div class="sp-precheck-header">
+            <svg class="sp-precheck-icon" viewBox="0 0 24 24" fill="none"
+                 xmlns="http://www.w3.org/2000/svg" width="26" height="26">
+                <path d="M12 3L2 21h20L12 3z"
+                      stroke="#c62828" stroke-width="2" stroke-linejoin="round" fill="#fff5f5"/>
+                <line x1="12" y1="9" x2="12" y2="14"
+                      stroke="#c62828" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="17.5" r="1.2" fill="#c62828"/>
+            </svg>
+            <h3>Not Enough Time</h3>
+        </div>
+
+        {# Khan - Short explanation message #}
+        <p class="sp-precheck-msg">
+            Based on your constraints, there is not enough time to schedule all selected instances.
+        </p>
+
+        {# Khan - The three key numbers: time needed, time available, estimated unfit #}
+        <div class="sp-precheck-stats">
+            <div class="sp-precheck-stat">
+                <span class="sp-precheck-stat-label">Time needed</span>
+                <span class="sp-precheck-stat-val" id="sp-pc-required">—</span>
+            </div>
+            <div class="sp-precheck-stat">
+                <span class="sp-precheck-stat-label">Time available</span>
+                <span class="sp-precheck-stat-val" id="sp-pc-available">—</span>
+            </div>
+            <div class="sp-precheck-stat sp-precheck-stat-warn">
+                <span class="sp-precheck-stat-label">Instances that may not fit</span>
+                <span class="sp-precheck-stat-val" id="sp-pc-unfit">—</span>
+                <span class="sp-precheck-stat-of">of <span id="sp-pc-total">—</span></span>
+            </div>
+        </div>
+
+        {# Khan - Reassurance note before the action buttons #}
+        <p class="sp-precheck-sub">
+            You can still continue — the algorithm will place as many as possible and
+            the preview will show exactly which instances couldn't be scheduled.
+        </p>
+
+        {# Khan - Two choices: go back to tweak constraints, or continue anyway #}
+        <div class="sp-precheck-btns">
+            <button class="nav-btn" onclick="spPreCheckGoBack()">&larr; Change Constraints</button>
+            <button class="nav-btn primary" onclick="spPreCheckContinue()">Continue Anyway</button>
+        </div>
+
+    </div>
+</div>
+{# End Pre-Check Warning Overlay #}
+
+{# Khan - Loading Overlay (Task 7) #}
+{# Shown while the algorithm is running - blocks all clicks until the plan is ready #}
+<div id="sp-loading-overlay" class="sp-loading-overlay hidden">
+    <div class="sp-loading-box">
+        {# Khan - CSS spinner (no image needed) #}
+        <div class="sp-spinner"></div>
+        <p class="sp-loading-title">Generating your plan...</p>
+        <p class="sp-loading-sub">This may take a few seconds.</p>
+    </div>
+</div>
+{# End Loading Overlay #}
+
+<div id="sp-preview-overlay" class="sp-preview-overlay hidden">
+
+    <div class="sp-preview-box">
+
+        {# Header: title + close button #}
+        <div class="sp-preview-header">
+            <h2>Your Plan Preview</h2>
+            <button class="sp-preview-close-btn"
+                    onclick="spPreviewClose()"
+                    title="Discard and close">&#x2715;</button>
+        </div>
+
+        {# Slide navigation: prev arrow, current slide label, next arrow #}
+        <div class="sp-preview-nav">
+            <button class="sp-slide-arrow-btn" id="sp-prev-slide"
+                    onclick="spPrevSlide()">&#8592; Prev</button>
+
+            <span class="sp-slide-label" id="sp-slide-label">Loading...</span>
+
+            <button class="sp-slide-arrow-btn" id="sp-next-slide"
+                    onclick="spNextSlide()">Next &#8594;</button>
+        </div>
+
+        {# Scrollable content area — filled by spRenderSlide() in JS #}
+        <div class="sp-slide-content" id="sp-slide-content">
+        </div>
+
+        {# Footer: Go Back on left, Approve on right #}
+        <div class="sp-preview-footer">
+            <button class="nav-btn" onclick="spPreviewGoBack()">
+                &#8592; Go Back
+            </button>
+
+            <button class="nav-btn primary" id="sp-approve-btn"
+                    onclick="spPreviewApprove()">
+                Approve Plan
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+    {% if type == 'month' %}
+        {% include 'partials/month-calendar.html' %}
+    {% else %}
+        {% include 'partials/week-calendar.html' %}
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+    <script>
+      window.MINI_CAL_CONFIG = {
+        mainPageUrl: "{% url 'main_page' %}",
+        currentType: "{{ type|default:'week' }}"
+      };
+      window.WEEK_CAL_CONFIG = {
+        weekStart: "{{ week_start|date:'Y-m-d' }}",
+        viewType:  "{{ type|default:'week' }}"
+      };
+      const CSRF_TOKEN = "{{ csrf_token }}";
+      const CREATE_EVENT_URL = "{% url 'create_event' %}";
+    </script>
+    <script type="application/json" id="calendar-events-data">{{ events_json|safe }}</script>
+    <script src="{% static 'js/week-calendar.js' %}"></script>
+    <script src="{% static 'js/load-modal-form.js' %}"></script>
+    <script src="{% static 'js/event_form.js' %}"></script>
+    <script src="{% static 'js/add-event.js' %}"></script>
+    <script src="{% static 'js/calendar-enhancements.js' %}"></script>
+    {% if type == 'month' %}
+    <script src="{% static 'js/month-calendar.js' %}"></script>
+    {% endif %}
+    <script src="{% static 'js/event_create.js' %}"></script>
+    <script src="{% static 'js/smart_planner.js' %}"></script>
+    <script src="{% static 'js/switch_schedule.js' %}"></script>
+{% endblock %}

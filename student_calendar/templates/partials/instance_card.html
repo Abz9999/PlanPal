@@ -1,0 +1,37 @@
+<!-- Khan -->
+<!-- Reusable instance card - used in the popup now, completed page later -->
+<!-- instance = a ScheduleEvent object, event = the parent Event template -->
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+<div class="instance-card"
+     data-instance-id="{{ instance.id }}"
+     style="background-color: {{ event.category.colour|default:'#888888' }}20;
+            border: 3px solid {% if event.importance == 1 %}#c53030{% elif event.importance == 2 %}#c05621{% elif event.importance == 3 %}#b7791f{% elif event.importance == 4 %}#276749{% else %}#2b6cb0{% endif %};">
+
+    <!-- top row: green/red circles left, instance number right -->
+    <div class="instance-card-top">
+        <div class="instance-status-circles">
+            <div class="status-circle complete {% if instance.status == 3 %}active{% else %}inactive{% endif %}"
+                 onclick="setInstanceStatus({{ instance.id }}, 3, this)"
+                 title="Mark as completed"></div>
+            <div class="status-circle missed {% if instance.status == 4 %}active{% else %}inactive{% endif %}"
+                 onclick="setInstanceStatus({{ instance.id }}, 4, this)"
+                 title="Mark as missed"></div>
+        </div>
+        <span class="instance-number">#{{ instance.occurrence_index }}</span>
+    </div>
+
+    <!-- title centred -->
+    <div class="instance-card-title">
+        <h6>{{ event.title }}</h6>
+    </div>
+
+    <!-- bottom row: duration left, counter right -->
+    <div class="instance-card-footer">
+        <span class="instance-duration">{{ event.duration_format }}</span>
+        <span class="instance-counter">{{ instance.occurrence_index }} / {{ event.max_instances }}</span>
+    </div>
+
+</div>

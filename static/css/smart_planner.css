@@ -1,0 +1,924 @@
+/* Khan - Smart Planner Modal Styles
+This file handles all the CSS for the Smart Planner popup.
+*/
+
+
+/* Khan - The dark overlay that covers the whole screen when the popup opens */
+#smartPlannerModal {
+    position: fixed;          /* stays in place even if user scrolls */
+    inset: 0;                 /* shorthand for top/right/bottom/left: 0 */
+    background: rgba(0, 0, 0, 0.55);   /* semi-transparent dark background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;            /* sits on top of everything else on the page */
+}
+
+/* Khan - Hidden state - toggled by JS */
+#smartPlannerModal.hidden {
+    display: none;
+}
+
+/* Khan - The white popup box that sits in the centre of the overlay */
+.sp-modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+    width: 660px;
+    max-width: 95vw;          /* shrinks on small screens */
+    max-height: 88vh;         /* doesn't go taller than the screen */
+    display: flex;
+    flex-direction: column;   /* stack header, body, footer vertically */
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Khan - Top bar: title on left, X close button on right */
+.sp-modal-header {
+    padding: 22px 26px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;           /* header won't squish if content is tall */
+}
+
+.sp-modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111111;
+}
+
+/* Khan - The X button in the top right corner */
+.sp-close-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #888888;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    line-height: 1;
+    transition: background 0.15s;
+}
+
+.sp-close-btn:hover {
+    background: #f1f3f4;
+    color: #111111;
+}
+
+/* Khan - Step indicator: two coloured bars at the top showing progress */
+.sp-step-progress {
+    display: flex;
+    gap: 6px;
+    padding: 14px 26px 0;
+    flex-shrink: 0;
+}
+
+.sp-step-dot {
+    height: 4px;
+    border-radius: 2px;
+    background: #e0e0e0;      /* grey = not reached yet */
+    flex: 1;
+    transition: background 0.25s;
+}
+
+.sp-step-dot.done {
+    background: #111111;      /* black = completed or current step */
+}
+
+/* Khan - The scrollable middle section - holds whichever step is active */
+.sp-modal-body {
+    padding: 20px 26px 8px;
+    overflow-y: auto;         /* scroll if content is too tall */
+    flex: 1;
+}
+
+/* Khan - Each step div - hidden by default, shown when JS adds .active */
+.sp-step {
+    display: none;
+}
+
+.sp-step.active {
+    display: block;
+}
+
+/* Khan - Small uppercase label above each section (e.g. "Date Range") */
+.sp-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888888;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 8px;
+}
+
+.sp-section-label.sp-mt {
+    margin-top: 16px;
+}
+
+/* Khan - Two equal columns side by side (used for date range + time window) */
+.sp-row-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+/* Khan - A single form field with its label above it */
+.sp-field {
+    margin-bottom: 14px;
+}
+
+.sp-field label {
+    display: block;
+    font-size: 12px;
+    color: #555555;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+/* Khan - Consistent input and select styling across the form */
+.sp-field input,
+.sp-field select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #111111;
+    box-sizing: border-box;
+    outline: none;
+    background: #ffffff;
+    transition: border-color 0.15s;
+    font-family: inherit;
+}
+
+.sp-field input:focus,
+.sp-field select:focus {
+    border-color: #111111;
+}
+
+/* Khan - Day selector pills - Mon/Tue/Wed etc shown as toggleable buttons */
+.sp-day-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+/* Khan - Each day is a styled label that looks like a pill button */
+.sp-day-pill {
+    display: flex;
+    align-items: center;
+    padding: 6px 14px;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #555555;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+}
+
+/* Khan - Hide the real checkbox - we style the label instead */
+.sp-day-pill input[type="checkbox"] {
+    display: none;
+}
+
+/* Khan - When a day is selected, the pill turns black */
+.sp-day-pill.selected {
+    border-color: #111111;
+    background: #111111;
+    color: #ffffff;
+}
+
+/* Khan - Keep/Erase toggle - two big clickable option panels side by side */
+.sp-toggle-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.sp-toggle-option {
+    padding: 12px 14px;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 13px;
+    color: #555555;
+    transition: all 0.15s;
+    user-select: none;
+    line-height: 1.4;
+}
+
+.sp-toggle-option strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 2px;
+    color: #111111;
+}
+
+.sp-toggle-option.selected {
+    border-color: #111111;
+    background: #111111;
+    color: #ffffff;
+}
+
+.sp-toggle-option.selected strong {
+    color: #ffffff;
+}
+
+/* Khan - Red error text shown under the form if validation fails */
+.sp-error {
+    color: #c62828;
+    font-size: 13px;
+    margin-top: 6px;
+    padding: 8px 12px;
+    background: #fff5f5;
+    border-radius: 6px;
+    border-left: 3px solid #c62828;
+    display: none;
+}
+
+.sp-error.visible {
+    display: block;
+}
+
+
+/* ---- Step 2: Event Selection Styles ---- */
+
+/* Khan - Filter dropdown and search bar at the top of step 2 */
+.sp-filter-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.sp-filter-row select {
+    padding: 8px 12px;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #111111;
+    outline: none;
+    background: #ffffff;
+    min-width: 160px;
+    transition: border-color 0.15s;
+    font-family: inherit;
+}
+
+.sp-filter-row input[type="text"] {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #111111;
+    outline: none;
+    background: #ffffff;
+    transition: border-color 0.15s;
+    font-family: inherit;
+}
+
+.sp-filter-row select:focus,
+.sp-filter-row input[type="text"]:focus {
+    border-color: #111111;
+}
+
+/* Khan - The list of events in step 2 */
+.sp-event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Khan - Each row contains: event card | counters | checkbox */
+.sp-event-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 10px;
+    background: #fafafa;
+    transition: border-color 0.15s;
+}
+
+.sp-event-row:hover {
+    border-color: #bbbbbb;
+}
+
+/* Khan - Highlighted state when checkbox is ticked */
+.sp-event-row.sp-selected {
+    border-color: #111111;
+    background: #f5f5f5;
+}
+
+/* Khan - The mini event card area - takes up most of the row width */
+.sp-card-area {
+    flex: 1;
+    min-width: 0;             /* prevents text overflow from breaking layout */
+    padding: 10px 12px;
+    border-radius: 8px;
+    border-left: 4px solid #ccc; /* overridden inline by JS with importance colour */
+    cursor: pointer;
+}
+
+.sp-card-area:hover {
+    filter: brightness(0.97);
+}
+
+/* Khan - Event title inside the mini card */
+.sp-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111111;
+    margin: 0 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Khan - Category name and duration below the title */
+.sp-card-meta {
+    font-size: 12px;
+    color: #666666;
+}
+
+/* Khan - The 4 status counters shown to the right of each card */
+.sp-counters {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 115px;
+    font-size: 11px;
+    color: #555555;
+    flex-shrink: 0;
+}
+
+.sp-counter-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Khan - Coloured dot next to each counter label */
+.sp-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.sp-dot.created   { background: #888888; }
+.sp-dot.scheduled { background: #1a73e8; }
+.sp-dot.completed { background: #276749; }
+.sp-dot.missed    { background: #c53030; }
+
+/* Khan - The checkbox on the far right of each row */
+.sp-cb-wrap {
+    flex-shrink: 0;
+}
+
+.sp-cb-wrap input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #111111;    /* makes the tick black when checked */
+}
+
+/* Khan - Shown when no events match the current filter/search */
+.sp-empty-msg {
+    text-align: center;
+    color: #888888;
+    font-size: 13px;
+    padding: 32px 0;
+}
+
+
+/* ---- Modal Footer ---- */
+
+/* Khan - Bottom bar with Back / Cancel / Next buttons */
+.sp-modal-footer {
+    padding: 14px 26px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #f0f0f0;
+    flex-shrink: 0;
+}
+
+.sp-footer-left,
+.sp-footer-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Khan - Error div is now at the TOP of step 1 so we need bottom margin
+   instead of top margin so it has breathing room before the first field */
+.sp-error {
+    margin-bottom: 12px;
+}
+
+/* Khan - The "All" select-all label in the filter row */
+.sp-select-all-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #555555;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 8px 10px;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 8px;
+    background: #ffffff;
+    transition: border-color 0.15s;
+    user-select: none;
+}
+
+.sp-select-all-label:hover {
+    border-color: #111111;
+}
+
+.sp-select-all-label input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    accent-color: #111111;
+    margin: 0;
+}
+
+/* ---- Pre-Check Warning Overlay (Task 6) ---- */
+
+/* Khan - Full screen dark overlay - sits above the smart planner modal */
+.sp-precheck-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.60);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;   /* higher than smart planner modal (z-index 1000) */
+}
+
+/* Khan - Hidden state - JS toggles this class */
+.sp-precheck-overlay.hidden {
+    display: none;
+}
+
+/* Khan - The warning card in the centre of the overlay */
+.sp-precheck-box {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.20);
+    width: 460px;
+    max-width: 95vw;
+    padding: 28px 30px 24px;
+    box-sizing: border-box;
+}
+
+/* Khan - Header: warning triangle icon + "Not Enough Time" title side by side */
+.sp-precheck-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.sp-precheck-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111111;
+}
+
+/* Khan - The main explanation text */
+.sp-precheck-msg {
+    font-size: 14px;
+    color: #444444;
+    margin: 0 0 16px;
+    line-height: 1.55;
+}
+
+/* Khan - Grey stats block: shows the 3 key numbers */
+.sp-precheck-stats {
+    background: #f8f8f8;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Khan - Each row in the stats block (label on left, value on right) */
+.sp-precheck-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.sp-precheck-stat-label {
+    color: #777777;
+    flex: 1;
+}
+
+.sp-precheck-stat-val {
+    font-weight: 600;
+    color: #111111;
+}
+
+/* Khan - The unfit count row gets red text so it stands out */
+.sp-precheck-stat-warn .sp-precheck-stat-val {
+    color: #c62828;
+}
+
+/* Khan - The "of X" part next to the unfit count */
+.sp-precheck-stat-of {
+    font-size: 12px;
+    color: #888888;
+    margin-left: 2px;
+}
+
+/* Khan - Smaller reassurance text below the stats */
+.sp-precheck-sub {
+    font-size: 13px;
+    color: #666666;
+    margin: 0 0 20px;
+    line-height: 1.55;
+}
+
+/* Khan - Action buttons at the bottom */
+.sp-precheck-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* ---- Loading Overlay (Task 7) ---- */
+
+/* Khan - Full screen overlay that appears while the algorithm runs */
+/* z-index 1200 puts it above everything else including the pre-check warning */
+.sp-loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1200;
+}
+
+.sp-loading-overlay.hidden {
+    display: none;
+}
+
+/* Khan - The white card in the centre of the overlay */
+.sp-loading-box {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.20);
+    padding: 36px 40px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-width: 240px;
+}
+
+/* Khan - Pure CSS spinning circle - no images needed */
+.sp-spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid #e0e0e0;
+    border-top-color: #111111;
+    border-radius: 50%;
+    animation: sp-spin 0.8s linear infinite;
+}
+
+@keyframes sp-spin {
+    to { transform: rotate(360deg); }
+}
+
+.sp-loading-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111111;
+}
+
+.sp-loading-sub {
+    margin: 0;
+    font-size: 13px;
+    color: #888888;
+}
+/* Full-screen dark backdrop */
+.sp-preview-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1200;
+}
+
+/* Hidden state */
+.sp-preview-overlay.hidden {
+    display: none;
+}
+
+/* Main container */
+.sp-preview-box {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.22);
+    width: 760px;
+    max-width: 95vw;
+    height: 82vh;
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+.sp-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 26px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+}
+
+.sp-preview-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111;
+}
+
+/* Close button */
+.sp-preview-close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #888;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    line-height: 1;
+}
+
+.sp-preview-close-btn:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+/* Navigation bar */
+.sp-preview-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fafafa;
+    flex-shrink: 0;
+}
+
+/* Navigation buttons */
+.sp-slide-arrow-btn {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    color: #333;
+    transition: background 0.15s;
+}
+
+.sp-slide-arrow-btn:hover:not(:disabled) {
+    background: #f0f0f0;
+}
+
+.sp-slide-arrow-btn:disabled {
+    opacity: 0.32;
+    cursor: not-allowed;
+}
+
+/* Slide label */
+.sp-slide-label {
+    flex: 1;
+    text-align: center;
+    padding: 0 14px;
+}
+
+.sp-slide-label-main {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+}
+
+.sp-slide-label-sub {
+    display: block;
+    font-size: 11px;
+    color: #999;
+    margin-top: 2px;
+}
+
+/* Scrollable content */
+.sp-slide-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px 26px;
+}
+
+/* Week view */
+.sp-week-day {
+    margin-bottom: 20px;
+}
+
+.sp-week-day-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 7px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.sp-week-event {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #f7f9fc;
+    margin-bottom: 5px;
+    border-left: 3px solid #2b6cb0;
+}
+
+.sp-week-event-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111;
+}
+
+.sp-week-event-time {
+    font-size: 12px;
+    color: #666;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.sp-no-events-msg {
+    text-align: center;
+    color: #bbb;
+    font-size: 14px;
+    padding: 40px 0;
+}
+
+/* Summary section */
+.sp-summary-totals {
+    text-align: center;
+    padding: 14px 0 20px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 20px;
+}
+
+.sp-summary-total-num {
+    font-size: 40px;
+    font-weight: 700;
+    color: #276749;
+    display: block;
+    line-height: 1.1;
+}
+
+.sp-summary-total-label {
+    font-size: 14px;
+    color: #555;
+    display: block;
+    margin-top: 2px;
+}
+
+.sp-summary-all-placed {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #276749;
+    background: #f0fff4;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.sp-summary-total-warn {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #c53030;
+    background: #fff5f5;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+/* Summary rows */
+.sp-summary-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 64px;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+}
+
+.sp-summary-title {
+    font-size: 14px;
+    color: #222;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sp-summary-bar-wrap {
+    background: #eeeeee;
+    border-radius: 4px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.sp-summary-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.45s ease;
+}
+
+.sp-summary-count {
+    font-size: 13px;
+    color: #555;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Warnings section */
+.sp-warnings-section {
+    margin-top: 24px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 16px;
+}
+
+.sp-warnings-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #c53030;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+}
+
+.sp-warning-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px 12px;
+    background: #fff5f5;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    gap: 14px;
+    border-left: 3px solid #c53030;
+}
+
+.sp-warning-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #c53030;
+    white-space: nowrap;
+}
+
+.sp-warning-reason {
+    font-size: 12px;
+    color: #777;
+    text-align: right;
+}
+
+/* Footer */
+.sp-preview-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 26px;
+    border-top: 1px solid #f0f0f0;
+    flex-shrink: 0;
+}
